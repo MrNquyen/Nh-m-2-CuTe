@@ -86,4 +86,4 @@ urllib3==2.2.3
 voluptuous==0.15.2
 watchdog==6.0.0
 yolo==0.3.1
-opencv-python-headless==4.5.1.48
+opencv-python-headless
