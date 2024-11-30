@@ -82,7 +82,7 @@ def inference(model=None):
 
     if st.sidebar.button("Classify Image") and uploaded_image is not None:
         image = Image.open(uploaded_image)
-        image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BRG)
+        image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
         results = model(image, conf=conf)
         class_name = list(model.name.values())
