@@ -58,7 +58,7 @@ def inference(model=None):
                     </div>"""
 
     # Set html page configuration
-    # st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide", initial_sidebar_state="auto")
+    st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide", initial_sidebar_state="auto")
 
     # Append the custom HTML
     st.markdown(menu_style_cfg, unsafe_allow_html=True)
@@ -82,22 +82,21 @@ def inference(model=None):
 
     if st.sidebar.button("Classify Image") and uploaded_image is not None:
         image = Image.open(uploaded_image)
-        image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BRG)
 
         results = model(image, conf=conf)
-        # print((results))
-        # class_name = list(model.name.values())
+        class_name = list(model.name.values())
 
         if results:
-            first_result = results[0]
-            st.write(first_result)
-            class_name = first_result.names[first_result.boxes[0].item()]
-            confidence_score = first_result.boxes[0].conf[0].item()
+            #first_result = results[0]
+            #class_name = first_result.names[first_result.boxes[0].item()]
+            #confidence_score = first_result.boxes[0].conf[0].item()
 
-            eco_label = 'biodegradable' if class_name in ['paper_waste', 'leaf_waste', 'food_waste', 'wood_waste'] else 'non-biodegradable'
+            #eco_label = 'biodegradable' if class_name in ['paper_waste', 'leaf_waste', 'food_waste', 'wood_waste'] else 'non-biodegradable'
 
             # Display the prediction result
-            st.success(f'Given image is {class_name} ({confidence_score:.2f}), {eco_label}.')
+            #st.success(f'Given image is {class_name} ({confidence_score:.2f}), {eco_label}.')
+            st.success(results)
         else:
             st.warning("Object(s) in given image is undetectable.")
 
