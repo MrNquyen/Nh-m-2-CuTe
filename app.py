@@ -10,7 +10,6 @@ from PIL import Image
 import numpy as np 
 
 from ultralytics.utils.checks import check_requirements
-from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
 
 def download_file(file_id, destination):
     url = f"https://drive.google.com/uc?id={file_id}"
@@ -27,8 +26,10 @@ def download_file(file_id, destination):
         print(f"Failed to download file with ID {file_id}. Status code: {response.status_code}")
         return False
 file_ids = ["1OsAa-MryW-4lNvzweL2xxw2qjn4yyUk4",
-            '1aOEL9i87bleMUyfQPHnb-f1Awyfc0q_K']
-destination_paths = ["best.pt", 'logo.png']
+            '1aOEL9i87bleMUyfQPHnb-f1Awyfc0q_K',
+            '1BgyfGvFiqOpIWqHDH-FPnlbA5L-1TR7B',
+            '1HZlxtAUO1utwc2p9Rl5g5a54GJpNsdiS']
+destination_paths = ["best.pt", 'logo.png', 'modelcomparison.jpg','authorproject.jpg']
 for file_id, destination in zip(file_ids, destination_paths):
     if download_file(file_id, destination):
         st.success(f"Downloaded {destination} successfully.")
@@ -37,74 +38,107 @@ for file_id, destination in zip(file_ids, destination_paths):
     
 def inference(model=None):
     """Performs object detection on your image using YOLO11n-cls."""
-    check_requirements("streamlit>=1.29.0")  # scope imports for faster ultralytics package load speeds
+    check_requirements("streamlit>=1.29.0")  
     import streamlit as st
 
     from ultralytics import YOLO
 
-    # Hide main menu style
     menu_style_cfg = """<style>MainMenu {visibility: hidden;}</style>"""
 
-    # Main title of streamlit application
     main_title_cfg = """<div><h1 style="color:#00CCFF; text-align:center; font-size:40px; 
                              font-family: 'Archivo', sans-serif; margin-top:-50px;margin-bottom:20px;">
                     Ultralytics YOLO Streamlit Application
                     </h1></div>"""
 
-    # Subtitle of streamlit application
     sub_title_cfg = """<div><h4 style="color:#40e0d0; text-align:center; 
                     font-family: 'Archivo', sans-serif; margin-top:-15px; margin-bottom:50px;">
                     Classify your image with the power of 2-day-non-sleep 🥲</h4>
                     </div>"""
 
-    # Set html page configuration
-    # st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide", initial_sidebar_state="auto")
 
-    # Append the custom HTML
     st.markdown(menu_style_cfg, unsafe_allow_html=True)
     st.markdown(main_title_cfg, unsafe_allow_html=True)
     st.markdown(sub_title_cfg, unsafe_allow_html=True)
 
-    # Add logo in sidebar
     with st.sidebar:
         logo = "logo.png"
         st.image(logo, width=250)
 
-    # Add elements to vertical setting menu
-    st.sidebar.title("User Configuration")
+    sidebar_option = st.sidebar.selectbox("HOME", ['🍀 About Us','🤖 User Configuration'])
 
-    uploaded_image = st.sidebar.file_uploader('Select Image', type=['jpg','jpeg','png'])
+    if sidebar_option == "🤖 User Configuration":
+        uploaded_image = st.sidebar.file_uploader('Select Image', type=['jpg','jpeg','png'])
+        model = YOLO('best.pt')
+        st.success('Model loaded successfully!')
+        conf = float(st.sidebar.slider('Confidence Threshold', 0.0, 1.0, 0.3, 0.01))
+        if st.sidebar.button("Classify Image") and uploaded_image is not None:
+            image = Image.open(uploaded_image)
+            image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+            results = model(image, conf=conf)
+            if results:
+                st.success(results)
+            else:
+                st.warning("Object(s) in given image is undetectable.")
+        torch.cuda.empty_cache()
+    
+    elif sidebar_option == '🍀 About Us':
+        st.title('About Us')
+        st.header('Introduction')
+        st.write("""
+                  ***The main goal of this study is to build a model capable of automatic 
+                  waste sorting based on images, which helps to optimize the waste sorting 
+                  and treatment process. This model not only contributes to reducing manual 
+                  labor but also improves efficiency in waste management, towards a green, 
+                  clean, smart and sustainable earth. With following specific goals:***
+                  """)
+        st.header('How does it works?')
+        st.subheader('Transfer Learning')
+        st.write("""
+                  Transfer Learning is a machine learning technique in which a model 
+                  developed for a specific task is reused as a starting point for a model 
+                  on a second related task. This approach is especially useful when the 
+                  second task has limited data, allowing the model to leverage the knowledge 
+                  gained from the first task to improve performance for the new task.
+                  """)
+        st.subheader('Computer Vision')
+        st.write("""
+                  Computer vision is a rapidly growing field that gives machines the ability 
+                  to interpret and understand image data. An important aspect in this field 
+                  is object detection, which is the accurate identification and positioning 
+                  of objects in an image or video. In recent years, algorithms have made 
+                  significant strides in addressing this challenge.
+                  """)
+        st.subheader('YOLO')
+        st.write("""
+                  An important breakthrough in object detection was the introduction of the 
+                  YOLO (You Only Look Once) platform introduced by Redmon et al. in 2015. 
+                  This innovative method, as the name implies, processes the entire image in a 
+                  single go to detect objects and their location. YOLO's approach differs from 
+                  traditional two-stage detection methods by treating object detection as a 
+                  regression problem. It uses a single convolutional neural network to 
+                  simultaneously predict bounding boxes and classification probabilities across 
+                  the entire image, simplifying the detection process compared to more complex 
+                  methods in the past.
+                  """)
+        st.subheader('YOLO version 11')
+        st.write("""
+                  YOLOv11 is the latest version in the YOLO series, built on the foundation of 
+                  YOLOv1. Announced at the YOLO Vision 2024 (YV24) conference, YOLOv11 marks an 
+                  important step forward in real-time object detection technology. This new 
+                  version brings major improvements in both architecture and training methods, 
+                  promoting accuracy, speed, and efficiency.
+                  """)
+        st.subheader('Why did we choose YOLO11n-cls instead of other classic Transfer models?')
+        st.image('modelcomparison.jpg', caption = 'Comparison between YOLO11n-cls and EfficientNet_B7')
+        st.write("""
+                   YOLO11n-cls is completely superior to EfficientNet_B7 in all indicators (Precision, 
+                   Recall, F1-score). This shows that this model is much more suitable for the task of 
+                   sorting waste types. EfficientNet_B7 does not meet the requirements with very low 
+                   performance, which may be due to not being optimized or not suitable for this 
+                   dataset.
+                  """)
+        st.header('Authors')
+        st.image('authorproject.jpg')
 
-    model = YOLO('best.pt')
-    st.success('Model loaded successfully!')
-
-    conf = float(st.sidebar.slider('Confidence Threshold', 0.0, 1.0, 0.3, 0.01))
-
-    if st.sidebar.button("Classify Image") and uploaded_image is not None:
-        image = Image.open(uploaded_image)
-        image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
-        results = model(image, conf=conf)
-        # class_name = list(model.name.values())
-
-        if results:
-            #first_result = results[0]
-            #class_name = first_result.names[first_result.boxes[0].item()]
-            #confidence_score = first_result.boxes[0].conf[0].item()
-
-            #eco_label = 'biodegradable' if class_name in ['paper_waste', 'leaf_waste', 'food_waste', 'wood_waste'] else 'non-biodegradable'
-
-            # Display the prediction result
-            #st.success(f'Given image is {class_name} ({confidence_score:.2f}), {eco_label}.')
-            st.success(results)
-        else:
-            st.warning("Object(s) in given image is undetectable.")
-
-
-    # Clear CUDA memory
-    torch.cuda.empty_cache()
-
-
-# Main function call
 if __name__ == "__main__":
-    inference('best.pt')
+    inference()
