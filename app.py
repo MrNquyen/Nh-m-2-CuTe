@@ -85,7 +85,7 @@ def inference(model=None):
         image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
         results = model(image, conf=conf)
-        class_name = list(model.name.values())
+        # class_name = list(model.name.values())
 
         if results:
             #first_result = results[0]
