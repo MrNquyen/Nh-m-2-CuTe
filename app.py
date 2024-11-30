@@ -85,8 +85,9 @@ def inference(model=None):
         image =cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
         results = model(image, conf=conf)
-        class_name = list(model.name.values())
-
+        #class_name = list(model.names.values())
+        st.write(type(results))
+ 
         if results:
             #first_result = results[0]
             #class_name = first_result.names[first_result.boxes[0].item()]
@@ -107,4 +108,4 @@ def inference(model=None):
 
 # Main function call
 if __name__ == "__main__":
-    inference('best.pt')
+    inference()
