@@ -58,7 +58,7 @@ def inference(model=None):
                     </div>"""
 
     # Set html page configuration
-    st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide", initial_sidebar_state="auto")
+    # st.set_page_config(page_title="Ultralytics Streamlit App", layout="wide", initial_sidebar_state="auto")
 
     # Append the custom HTML
     st.markdown(menu_style_cfg, unsafe_allow_html=True)
